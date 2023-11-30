@@ -70,7 +70,7 @@ def prm(obstacles, agent, N=1000, xlim=(0, 10), ylim=(0, 10), k=6):
 
 		for j in range(1,k+1):
 			# Distributions could be defined here:
-			graph.nodes[i].edges[indices[j]] = distances[j]
+			graph.nodes[i].edges[int(indices[j])] = float(distances[j])
 
 	graph.add_kdtree(tree)
 	graph.enforce_symmetry()

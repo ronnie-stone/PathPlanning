@@ -4,6 +4,7 @@ class Node():
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.index = index
+        self.edges = dict()
         self.gcost = float("Inf")
         self.hcost = float("Inf")
         self.fcost = float("Inf")
@@ -12,10 +13,9 @@ class Node():
         self.predecessor = -1
         self.safe_intervals = []
         self.interval = []
-        self.edges = dict()
         self.time = 0
         self.old = -1
-        self.std = 0
+        self.var = 1e-9
         self.mean = 0
 
     def update_fcost(self):
@@ -23,7 +23,6 @@ class Node():
 
     def update_fcost_convolution(self):
         pass
-
 
     def find_current_interval(self, t):
         for interval in self.safe_intervals:
@@ -39,7 +38,22 @@ class Node():
         else:
             return False
 
-
     def add_connection(self, neighbor_index, distance_to_neighbor):
         self.connectivity_array[neighbor_index] = distance_to_neighbor
+
+    def serialize(self):
+        return {
+            "x_pos" : self.x_pos,
+            "y_pos" : self.y_pos,
+            "index" : self.index,
+            "edges" : self.edges,
+            "safe_intervals": self.safe_intervals
+        }
+    
+    @staticmethod
+    def deserialize(node_data):
+        node = Node(node_data["x_pos"], node_data["y_pos"], node_data["index"])
+        node.edges = {int(key): value for key, value in node_data["edges"].items()}
+        node.safe_intervals = node_data["safe_intervals"]
+        return node
 

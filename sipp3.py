@@ -30,12 +30,13 @@ def sipp3(graph):
 	# Create a priority queue to deal with search progression:
 
 	pqueue = []
-	t = 0
 	hp.heappush(pqueue, min_node)
 
 	# While there are nodes to be explored:
 
 	while pqueue:
+
+		print(len(pqueue))
 
 		min_node = hp.heappop(pqueue)
 		min_node.visited = True
@@ -52,7 +53,7 @@ def sipp3(graph):
 				child_node.hcost = heuristic(child_node.index, end_index)
 				child_node.update_fcost()
 				child_node.mean = weight[0]
-				child_node.std = weight[1]
+				child_node.var = weight[1]
 				child_node.predecessor = min_node.index
 				hp.heappush(pqueue, nodes[child_node.index])
 

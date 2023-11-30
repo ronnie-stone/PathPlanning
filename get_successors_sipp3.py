@@ -1,30 +1,27 @@
 import numpy as np
 from node import Node 
 from scipy.stats import norm
+from scipy.optimize import minimize
 
-def probability_in_interval(mean, std_dev, interval_start, interval_end):
-    
-    z_start = (interval_start - mean) / std_dev
-    z_end = (interval_end - mean) / std_dev
+def constraint_N1(tw, mu_i, var_i, a1, b1, P_threshold):
+	mean = mu_i + tw
+	std_dev = var_i ** 0.5
+	return norm.cdf(b1, mean, std_dev) - norm.cdf(a1, mean, std_dev) - P_threshold
 
-    
-    prob_interval = norm.cdf(z_end) - norm.cdf(z_start)
+def constraint_N2(tw, mu_i, mu_ij, var_i, var_ij, a2, b2, P_threshold):
+    mean = mu_i + mu_ij + tw
+    std_dev = (var_i + var_ij) ** 0.5
+    return norm.cdf(b2, mean, std_dev) - norm.cdf(a2, mean, std_dev) - P_threshold
 
-    return prob_interval
+def objective(tw):
+	return tw
 
-def get_successors_sipp3(min_node, nodes, p_des):
+def get_successors_sipp3(min_node, nodes, P_threshold):
 
 	successors = []
 	t = min_node.gcost
 	current_interval = min_node.safe_intervals
 
-	# Sanity check:
-
-	if current_interval[0] > t or current_interval[1] < t:
-		pass
-		#print(t, current_interval)
-		#print("You are in an invalid configuration!")
-		
 	# M(S) to find neighboring configurations and c(s, s') = weight:
 
 	for child_node_index, weight in min_node.edges.items():
@@ -32,57 +29,62 @@ def get_successors_sipp3(min_node, nodes, p_des):
 		child_node = nodes[child_node_index]
 		interval = child_node.safe_intervals
 
-		start_t = t + weight
-		end_t = current_interval[1] + weight
-		if interval[0] > end_t or interval[1] < start_t:
-			continue
-		new_t = max(start_t, interval[0])
+		mu_i = min_node.mean
+		var_i = min_node.var
+		a1 = current_interval[0]
+		b1 = current_interval[1]
 
-		std = 0.05
-		new_mean = new_t
-		new_std = np.sqrt(child_node.std**2 + std**2)
-		p_safe = probability_in_interval(new_mean, new_std, interval[0], interval[1])
-		print(p_safe)
-		if p_safe <= p_des:
+		mu_ij = weight
+		var_ij = 0.001
+		a2 = interval[0]
+		b2 = interval[1]
+
+		if a1 == 0 and b1 == float("Inf"):
+			tw_1 = [0, float("Inf")]
+		elif a1 != 0 and b1 == float("Inf"):
+			constraints1 = {"type": "ineq", "fun": constraint_N1, "args": (mu_i, var_i, a1, b1, P_threshold)}
+			results1 = minimize(lambda tw: tw, 0, constraints=constraints1, bounds=[(0, b1)])
+			if not results1.success:
+				continue
+			else:
+
+		else:
+			constraints1 = {"type": "ineq", "fun": constraint_N1, "args": (mu_i, var_i, a1, b1, P_threshold)}
+			results1 = minimize(lambda tw: tw, 0, constraints=constraints1, bounds=[(0, b1)])
+			if not results1.success:
+				continue
+			results2 = minimize(lambda tw: -tw, results1.x[0], constraints=constraints1, bounds=[(results1.x[0], b1)])
+			else:
+				tw1
+				print(results1.x[0])
+
+		results2 = minimize(lambda )
+
+
+		print(results1.x[0])
+		 
+		constraints = [{"type": "ineq", "fun": constraint_N1, "args": (mu_i, var_i, a1, b1, P_threshold)},
+				       {"type": "ineq", "fun": constraint_N2, "args": (mu_i, mu_ij, var_i, var_ij, a2, b2, P_threshold)}]
+		
+		initial_guess = 0
+		bounds = [(0, b1)]
+		
+		result = minimize(objective, initial_guess, constraints=constraints, bounds=bounds)
+		success = result.success
+		tw_optimal = result.x[0] if success else None
+		
+		if tw_optimal is None:
 			continue
-		successors.append((child_node, (new_mean, new_std), new_t))
+
+		if tw_optimal != 0:
+			print(tw_optimal) 
+
+		new_mean = mu_i + mu_ij + tw_optimal
+		new_var = var_i + var_ij
+
+		successors.append((child_node, (new_mean, new_var), new_mean))
 
 	return successors
 
-
 if __name__ == "__main__":
-
-	# Define node SB as in the paper:
-
-    node_SB0 = Node(5,5,0)
-    node_SB0.safe_intervals = [0,4]
-
-    node_SB1 = Node(5,5,1)
-    node_SB1.safe_intervals = [6,float("Inf")]
-
-    node_SA0 = Node(5,6,2)
-    node_SA0.safe_intervals = [0,5]
-
-    node_SA1 = Node(5,6,3)
-    node_SA1.safe_intervals = [7, float("Inf")]
-
-    node_SC0 = Node(5,4,4)
-    node_SC0.safe_intervals = [0, 1]
-
-    node_SC1 = Node(5,4,5)
-    node_SC1.safe_intervals = [3, 3]
-
-    node_SC2 = Node(5,4,6)
-    node_SC2.safe_intervals = [5, float("Inf")]
-    
-    node_SB0.edges[2] = 1
-    node_SB0.edges[3] = 1
-    node_SB0.edges[4] = 1
-    node_SB0.edges[5] = 1
-    node_SB0.edges[6] = 1
-    node_SB0.gcost = 0
-    nodes = [node_SB0, node_SB1, node_SA0, node_SA1, node_SC0, node_SC1, node_SC2]
-    sucessors = get_successors_sipp2(node_SB0, nodes)
-
-    for node, weight, time in sucessors:
-	    print(node.index, weight, time)
+	pass
