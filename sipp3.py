@@ -44,11 +44,8 @@ def sipp3(graph):
 		successors = get_successors_sipp3(min_node, graph.nodes, 0.95)
 
 		for child_node, weight, time in successors:
-			#if not child_node.visited:
-			#	child_node.gcost = float("Inf")
-			#	child_node.update_fcost()
 
-			if child_node.gcost > time and not child_node.visited:
+			if child_node.gcost > time:
 				child_node.gcost = time
 				child_node.hcost = heuristic(child_node.index, end_index)
 				child_node.update_fcost()

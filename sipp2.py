@@ -30,12 +30,13 @@ def sipp2(graph):
 	# Create a priority queue to deal with search progression:
 
 	pqueue = []
-	t = 0
 	hp.heappush(pqueue, min_node)
 
 	# While there are nodes to be explored:
 
 	while pqueue:
+
+		print(len(pqueue))
 
 		min_node = hp.heappop(pqueue)
 		min_node.visited = True

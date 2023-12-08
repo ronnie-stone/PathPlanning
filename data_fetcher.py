@@ -1,4 +1,5 @@
 import numpy as np
+from graph import Graph
 from data_algorithms import generate_trajectory
 
 
