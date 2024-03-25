@@ -31,10 +31,13 @@ def fetch_static_obstacles(path):
     
 def fetch_dynamic_obstacles(agent_path, traj_path):
     dynamic_obstacles = dict()
-    initial_shape = fetch_agent(agent_path)
+    initial_shape = fetch_agent(agent_path)/2
     dynamic_obstacles["shape"] = initial_shape
     dynamic_obstacles["pos"] = []
-    generate_trajectory(initial_shape, (4,4.5), (6,4.5), constant=True)
+    if traj_path == "Circular":
+        generate_trajectory(initial_shape, (4,4.5), (6,4.5))
+    else:
+        generate_trajectory(initial_shape, (4,4.5), (6,4.5), constant=True)
     with open("Trajectories/" + traj_path + ".txt", "r") as f:
         for line in f:
             dynamic_obstacles["pos"].append(read_line(line, offset=1))

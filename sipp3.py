@@ -36,11 +36,8 @@ def sipp3(graph):
 
 	while pqueue:
 
-		print(len(pqueue))
-
 		min_node = hp.heappop(pqueue)
 		min_node.visited = True
-
 		successors = get_successors_sipp3(min_node, graph.nodes, 0.95)
 
 		for child_node, weight, time in successors:
@@ -54,13 +51,8 @@ def sipp3(graph):
 				child_node.predecessor = min_node.index
 				hp.heappush(pqueue, nodes[child_node.index])
 
-				#if not child_node.visited:
-				#	hp.heappush(pqueue, nodes[child_node.index])
-
 		if min_node.index == end_index:
 			break
-
-		#print(len(pqueue))
 
 	# Reconstructing the path:
 

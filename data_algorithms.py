@@ -180,3 +180,24 @@ def find_current_pose_2(graph, path, t):
     return (graph.nodes[min_index].x_pos, graph.nodes[min_index].y_pos), 0
     # return (graph.nodes[min_index].x_pos, graph.nodes[min_index].y_pos), graph.nodes[min_index].theta
 
+def path_to_plan(path, graph):
+    plan = []
+    nodes = graph.nodes
+    for i in range(len(path)-1):
+        # Fetch nodes, and expected vs. actual travel time:
+        node_i = nodes[path[i]]
+        node_j = nodes[path[i+1]]
+        cost_ij = node_i.edges[path[i+1]]
+        time_diff = node_j.gcost - node_i.gcost
+
+        # Check if the actual time was larger or equal than expected time:
+
+        print("Running time:" + str(node_i.gcost))
+
+        if not np.isclose([time_diff - cost_ij], [0]):
+            plan.append(("W", path[i], time_diff-cost_ij))
+        plan.append(("T", path[i], path[i+1], cost_ij))
+
+    return plan
+
+

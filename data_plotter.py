@@ -235,7 +235,7 @@ def simulate_motion(graph, agent, static_obstacles, dilated_static_obstacles, dy
         plot_path(graph, path, ax)
         print("Time: " + str(t) + "Step: " + str(i))
         plot_object(new_agent, ax, color="blue")
-        plot_object(new_obs, ax)
+        plot_object(new_obs, ax, color="green")
         plot_static_obstacles(static_obstacles, dilated_static_obstacles, ax)
 
         # Image manipulation ends. 
