@@ -23,7 +23,7 @@ def dilate_obstacles(static_obstacles, eps=0.1, res=1):
         dilated_static_obstacles.append(list(polygon_with_buffer.exterior.coords))
     return dilated_static_obstacles
 
-def generate_trajectory(agent, start, end, dt=0.1, speed=1.0, time=20.0, constant=False):
+def generate_trajectory(agent, start, end, dt=0.1, speed=1.0, time=15.0, constant=False):
     if constant:
         Nt = int(time/dt)
         trajectory = np.zeros([Nt,2])
@@ -190,6 +190,8 @@ def path_to_plan(path, graph):
         cost_ij = node_i.edges[path[i+1]]
         time_diff = node_j.gcost - node_i.gcost
 
+        print("nodej:" + str(node_j.gcost) + " nodei:" + str(node_i.gcost))
+
         # Check if the actual time was larger or equal than expected time:
 
         print("Running time:" + str(node_i.gcost))
@@ -197,6 +199,8 @@ def path_to_plan(path, graph):
         if not np.isclose([time_diff - cost_ij], [0]):
             plan.append(("W", path[i], time_diff-cost_ij))
         plan.append(("T", path[i], path[i+1], cost_ij))
+
+    print("Running time:" + str(node_j.gcost))
 
     return plan
 

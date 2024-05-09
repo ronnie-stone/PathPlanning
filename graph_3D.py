@@ -1,4 +1,4 @@
-import copy
+import copy, json
 import random as rd
 from node3D import Node3D
 
@@ -85,3 +85,21 @@ class Graph3D():
     def remove_query_points(self):
         for i in range(2):
             self.nodes.pop()
+
+    def serialize(self):
+        return {
+            "size" : self.size,
+            "nodes" : [node.serialize() for node in self.nodes]
+        }
+    
+    def save_graph(self, filename):
+        with open(filename, 'w') as f:
+            f.write(json.dumps(self.serialize()))
+        return
+    
+    @staticmethod
+    def deserialize(graph_data):
+        graph = Graph3D()
+        graph.size = graph_data["size"]
+        graph.nodes = [Node3D.deserialize(node_data) for node_data in graph_data["nodes"]]
+        return graph

@@ -32,6 +32,7 @@ def fetch_static_obstacles(path):
 def fetch_dynamic_obstacles(agent_path, traj_path):
     dynamic_obstacles = dict()
     initial_shape = fetch_agent(agent_path)/2
+    #initial_shape = fetch_agent(agent_path)
     dynamic_obstacles["shape"] = initial_shape
     dynamic_obstacles["pos"] = []
     if traj_path == "Circular":

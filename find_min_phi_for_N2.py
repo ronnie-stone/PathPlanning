@@ -1,6 +1,6 @@
 from scipy.stats import norm
 
-def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, x_percent, tol=1e-5, max_iter=100):
+def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, P_threshold, tol=1e-5, max_iter=100):
     """
     Find the lowest phi such that at least x% of N2's distribution
     remains within [a2, b2], or indicate if no solution exists.
@@ -29,7 +29,7 @@ def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, x_percent, tol=1e-5, 
 
     for _ in range(max_iter):
         mid = (low + high) / 2
-        if calc_percentage_within_interval(mid) < x_percent / 100.0:
+        if calc_percentage_within_interval(mid) < P_threshold:
             low = mid + tol
         else:
             best_phi = mid  # Found a candidate that satisfies the condition
@@ -40,7 +40,7 @@ def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, x_percent, tol=1e-5, 
             break
 
     # Final check to ensure the solution found actually meets the condition
-    if solution_found and calc_percentage_within_interval(best_phi) >= x_percent / 100.0:
+    if solution_found and calc_percentage_within_interval(best_phi) >= P_threshold:
         return best_phi
     else:
         return -1
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     mu = 1
     sigma = 0.5**2
     a2, b2 = -1, 2
-    x_percent = 75
+    x_percent = 0.75
 
     lowest_phi = find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, x_percent)
     print(f"The lowest phi for N2: {lowest_phi}")

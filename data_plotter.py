@@ -16,12 +16,12 @@ def generate_patch(obstacle, facecolor="blue", lw=1, alpha=0.8):
     patch = patches.PathPatch(patch_path, facecolor=facecolor, lw=lw, alpha=alpha, zorder=0)
     return patch
 
-def plot_object(object, ax, color="blue"):
+def plot_object(object, ax, color="blue", alpha=1.0):
     plt.sca(ax)
-    patch = generate_patch(object, facecolor=color, alpha=1.0)
+    patch = generate_patch(object, facecolor=color, alpha=alpha)
     ax.add_patch(patch)
 
-def plot_static_obstacles(static_obstacles, dilated_static_obstacles, ax):
+def plot_static_obstacles(static_obstacles, dilated_static_obstacles, ax, facecolor="blue", buffercolor="red"):
     """
     Plots user-defined obstacles in the specified axis.
     
@@ -35,11 +35,11 @@ def plot_static_obstacles(static_obstacles, dilated_static_obstacles, ax):
 
     plt.sca(ax)        
     for obstacle in static_obstacles:
-        patch = generate_patch(obstacle, facecolor="blue", lw=1, alpha=0.8)
+        patch = generate_patch(obstacle, facecolor=facecolor, lw=1, alpha=0.5)
         ax.add_patch(patch)
-    for obstacle in dilated_static_obstacles:
-        patch = generate_patch(obstacle, facecolor="red", lw=1, alpha=0.2)
-        ax.add_patch(patch)
+    #for obstacle in dilated_static_obstacles:
+    #    patch = generate_patch(obstacle, facecolor=buffercolor, lw=1, alpha=0.2)
+    #    ax.add_patch(patch)
 
     ax.set_aspect(1)
     plt.tick_params(left=False,bottom=False)
@@ -86,7 +86,7 @@ def plot_graph(graph, ax):
     plt.plot(x_point, y_point, 'ro', alpha=1.0, markersize=3, zorder=2, mec="black")
     plt.plot(x,y,color="k", alpha=0.5, zorder=1, lw=0.5)
 
-def plot_path(graph, path, ax, legend=False, agent=[], t_array=[]):
+def plot_path(graph, path, ax, color="red", legend=False, agent=[], t_array=[]):
     """
     Plots the path generated.
 
@@ -124,20 +124,20 @@ def plot_path(graph, path, ax, legend=False, agent=[], t_array=[]):
         node_1 = nodes[path[i]]
         node_2 = nodes[path[i+1]]
         plt.plot([node_1.x_pos, node_2.x_pos], [node_1.y_pos, node_2.y_pos],
-        color="red", alpha=1.0, zorder=3, lw=1.0)
+        color=color, alpha=1.0, zorder=3, lw=1.0)
 
         if poses:
             if orientation:
-                translated_agent = rigid_body_motion(agent, [node_1.x_pos, node_1.y_pos], t_array[k2])
+                translated_agent = rigid_body_motion(agent, [node_1.x_pos, node_1.y_pos], node_1.theta)
             else:
-                translated_agent = rigid_body_motion(agent, [node_1.x_pos, node_1.y_pos], 0)
-            patch = generate_patch(translated_agent, facecolor="green", alpha=0.5)
+                translated_agent = rigid_body_motion(agent, [node_1.x_pos, node_1.y_pos], node_1.theta)
+            patch = generate_patch(translated_agent, facecolor=color, alpha=0.2)
             ax.add_patch(patch)
 
-    if poses:
-        translated_agent = rigid_body_motion(agent, [node_2.x_pos, node_2.y_pos], 0)
-        patch = generate_patch(translated_agent, facecolor="green", alpha=0.5)
-        ax.add_patch(patch)
+    #if poses:
+    #    translated_agent = rigid_body_motion(agent, [node_2.x_pos, node_2.y_pos], node_2.theta)
+    #    patch = generate_patch(translated_agent, facecolor=color, alpha=1.0)
+    #    ax.add_patch(patch)
 
     if legend:
         plt.plot(-1, -1, color="r", label="Resolution Optimal Path")

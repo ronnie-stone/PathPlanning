@@ -5,6 +5,7 @@ class Node3D():
         self.y_pos = y_pos
         self.theta = theta
         self.index = index
+        self.edges = dict()
         self.gcost = float("Inf")
         self.hcost = float("Inf")
         self.fcost = float("Inf")
@@ -13,9 +14,10 @@ class Node3D():
         self.predecessor = -1
         self.safe_intervals = []
         self.interval = []
-        self.edges = dict()
         self.time = 0
         self.old = -1
+        self.var = 1e-12
+        self.mean = 0
 
     def update_fcost(self):
         self.fcost = self.gcost + self.hcost
@@ -36,3 +38,20 @@ class Node3D():
 
     def add_connection(self, neighbor_index, distance_to_neighbor):
         self.connectivity_array[neighbor_index] = distance_to_neighbor
+
+    def serialize(self):
+        return {
+            "x_pos" : self.x_pos,
+            "y_pos" : self.y_pos,
+            "theta" : self.theta,
+            "index" : self.index,
+            "edges" : self.edges,
+            "safe_intervals": self.safe_intervals
+        }
+    
+    @staticmethod
+    def deserialize(node_data):
+        node = Node3D(node_data["x_pos"], node_data["y_pos"], node_data["theta"], node_data["index"])
+        node.edges = {int(key): value for key, value in node_data["edges"].items()}
+        node.safe_intervals = node_data["safe_intervals"]
+        return node

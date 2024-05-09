@@ -15,7 +15,7 @@ class Node():
         self.interval = []
         self.time = 0
         self.old = -1
-        self.var = 1e-9
+        self.var = 1e-12
         self.mean = 0
 
     def update_fcost(self):

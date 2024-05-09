@@ -2,7 +2,7 @@ import numpy as np
 import heapq as hp
 from get_successors_sipp3 import get_successors_sipp3
 
-def sipp3(graph):
+def sipp3(graph, pbound):
 
 	def heuristic(node_index_1, node_index_2):
 
@@ -31,6 +31,7 @@ def sipp3(graph):
 
 	pqueue = []
 	hp.heappush(pqueue, min_node)
+	print(pbound)
 
 	# While there are nodes to be explored:
 
@@ -38,7 +39,7 @@ def sipp3(graph):
 
 		min_node = hp.heappop(pqueue)
 		min_node.visited = True
-		successors = get_successors_sipp3(min_node, graph.nodes, 0.95)
+		successors = get_successors_sipp3(min_node, graph.nodes, pbound)
 
 		for child_node, weight, time in successors:
 
