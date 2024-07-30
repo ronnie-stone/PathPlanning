@@ -1,4 +1,6 @@
 from scipy.stats import norm
+import numpy as np
+
 
 def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, P_threshold, tol=1e-5, max_iter=100):
     """
@@ -20,8 +22,9 @@ def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, P_threshold, tol=1e-5
     """
     def calc_percentage_within_interval(phi):
         mu2 = mu1 + mu + phi
-        sigma2 = sigma1_sq**0.5 + sigma**0.5
-        return norm.cdf(b2, loc=mu2, scale=sigma2) - norm.cdf(a2, loc=mu2, scale=sigma2)
+        var2 = sigma1_sq + sigma
+        sigma2 = var2**0.5
+        return norm.cdf(b2, mu2, sigma2) - norm.cdf(a2, mu2, sigma2)
     
     low, high = 0, 10  # Adjust high as necessary
     best_phi = None
@@ -47,12 +50,14 @@ def find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, P_threshold, tol=1e-5
 
 if __name__ == "__main__":
     # Example usage
-    mu1 = 0
+    mu1 = 0.05
     sigma1_sq = 1**2
     mu = 1
     sigma = 0.5**2
     a2, b2 = -1, 2
-    x_percent = 0.75
+    x_percent = 0.1
+
+    time = np.random.normal(0.5, np.sqrt(0.05), 1)
 
     lowest_phi = find_min_phi_for_N2(mu1, sigma1_sq, mu, sigma, a2, b2, x_percent)
     print(f"The lowest phi for N2: {lowest_phi}")

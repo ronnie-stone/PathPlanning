@@ -17,6 +17,7 @@ class Node():
         self.old = -1
         self.var = 1e-12
         self.mean = 0
+        self.running_prob = 1
 
     def update_fcost(self):
         self.fcost = self.gcost + self.hcost

@@ -5,11 +5,11 @@ from scipy.optimize import minimize
 from find_min_phi_for_N2 import find_min_phi_for_N2
 import time
 
-def check_shifted_distribution(mu, var, a2, b2, P_threshold, t):
-	cdf_a2 = norm.cdf(a2, mu+t, var**0.5)
-	cdf_b2 = norm.cdf(b2, mu+t, var**0.5)
+def check_shifted_distribution(mu, var, a2, b2, P_threshold, running_prob):
+	cdf_a2 = norm.cdf(a2, mu, var**0.5)
+	cdf_b2 = norm.cdf(b2, mu, var**0.5)
 	area = cdf_b2 - cdf_a2
-	is_satisfied = (area >= P_threshold)
+	is_satisfied = (area*running_prob >= P_threshold)
 	return is_satisfied, area
 
 def get_successors_sipp3(min_node, nodes, P_threshold):
@@ -33,6 +33,8 @@ def get_successors_sipp3(min_node, nodes, P_threshold):
 
 		mu_i = min_node.mean
 		var_i = min_node.var
+		running_prob = min_node.running_prob
+
 		a1 = current_interval[0]
 		b1 = current_interval[1]
 
@@ -41,13 +43,13 @@ def get_successors_sipp3(min_node, nodes, P_threshold):
 		mu_ij = weight
 
 		# For fixed uncertainty:
-		#var_ij = 0.05
+		var_ij = 0.005
   
 		# For space-varying uncertainty (diagonal split):
-		if child_node.y_pos <= (-child_node.x_pos + 10):
-			var_ij = 0.05
-		else:
-			var_ij = 0.08
+		#if child_node.y_pos <= (-child_node.x_pos + 10):
+		#	var_ij = 0.05
+		#else:
+		#	var_ij = 0.08
 
 		a2 = child_interval[0]
 		b2 = child_interval[1]
@@ -55,14 +57,14 @@ def get_successors_sipp3(min_node, nodes, P_threshold):
 		# If dynamic obstacle never crosses child node, i.e. sf = [0, inf], optimal waiting time is zero:
 
 		if a2 == 0 and b2 == float("inf"):
-			successors.append((child_node, (mu_i + mu_ij, var_i + var_ij), mu_i + mu_ij))
+			successors.append((child_node, (mu_i + mu_ij, var_i + var_ij, 1.0), mu_i + mu_ij))
 			continue
 
 		# Check if zero waiting time works. If not, and b2 is smaller or equal to the shifted mean, then there is no solution. 
 
-		is_satisfied, _ = check_shifted_distribution((mu_i + mu_ij), (var_i + var_ij), a2, b2, P_threshold, 0)
+		is_satisfied, area = check_shifted_distribution((mu_i + mu_ij), (var_i + var_ij), a2, b2, P_threshold, running_prob)
 		if is_satisfied:
-			successors.append((child_node, (mu_i + mu_ij, var_i + var_ij), mu_i + mu_ij))
+			successors.append((child_node, (mu_i + mu_ij, var_i + var_ij, area), mu_i + mu_ij))
 			continue
 		else: 
 			if b2 <= (mu_i + mu_ij):
@@ -70,13 +72,13 @@ def get_successors_sipp3(min_node, nodes, P_threshold):
 
 		# Now we look for the lower bound for N2 constraint and check if it satisfies N1 constraint:
 
-		tw_2_lb = find_min_phi_for_N2(mu_i, var_i, mu_ij, var_ij, a2, b2, P_threshold)
+		tw_2_lb = find_min_phi_for_N2(mu_i, var_i, mu_ij, var_ij, a2, b2, P_threshold*running_prob)
 		if tw_2_lb == (-1):
 			continue
 		else:
-			is_satisfied, _ = check_shifted_distribution((mu_i + tw_2_lb), (var_i), a1, b1, P_threshold,  0)
+			is_satisfied, area = check_shifted_distribution((mu_i + tw_2_lb), (var_i), a1, b1, P_threshold, running_prob)
 			if is_satisfied: 
-				successors.append((child_node, (mu_i + mu_ij + tw_2_lb, var_i + var_ij), mu_i + mu_ij + tw_2_lb))
+				successors.append((child_node, (mu_i + mu_ij + tw_2_lb, var_i + var_ij, area), mu_i + mu_ij + tw_2_lb))
 				continue
 			else: continue
 

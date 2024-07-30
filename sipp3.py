@@ -31,7 +31,7 @@ def sipp3(graph, pbound):
 
 	pqueue = []
 	hp.heappush(pqueue, min_node)
-	print(pbound)
+	
 
 	# While there are nodes to be explored:
 
@@ -49,6 +49,7 @@ def sipp3(graph, pbound):
 				child_node.update_fcost()
 				child_node.mean = weight[0]
 				child_node.var = weight[1]
+				child_node.running_prob *= weight[2]
 				child_node.predecessor = min_node.index
 				hp.heappush(pqueue, nodes[child_node.index])
 
